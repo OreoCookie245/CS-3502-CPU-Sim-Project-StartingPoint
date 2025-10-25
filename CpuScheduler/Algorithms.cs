@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace CpuScheduler
@@ -33,12 +35,7 @@ namespace CpuScheduler
             {
                 for (i = 0; i < processCount; i++)
                 {
-                    string input = Microsoft.VisualBasic.Interaction.InputBox(
-                        "Enter Burst time:",
-                        "Burst time for P" + (i + 1),
-                        string.Empty,
-                        -1,
-                        -1);
+                    string input = Microsoft.VisualBasic.Interaction.InputBox( "Enter Burst time:", "Burst time for P" + (i + 1), string.Empty, -1, -1);
 
                     if (!double.TryParse(input, out burstTimes[i]) || burstTimes[i] < 0)
                     {
@@ -57,11 +54,7 @@ namespace CpuScheduler
                     else
                     {
                         waitingTimes[i] = waitingTimes[i - 1] + burstTimes[i - 1];
-                        MessageBox.Show(
-                            "Waiting time for P" + (i + 1) + " = " + waitingTimes[i],
-                            "Job Queue",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.None);
+                        MessageBox.Show( "Waiting time for P" + (i + 1) + " = " + waitingTimes[i], "Job Queue", MessageBoxButtons.OK, MessageBoxIcon.None);
                     }
                 }
                 for (i = 0; i < processCount; i++)
@@ -69,11 +62,8 @@ namespace CpuScheduler
                     totalWaitingTime = totalWaitingTime + waitingTimes[i];
                 }
                 averageWaitingTime = totalWaitingTime / processCount;
-                MessageBox.Show(
-                    "Average waiting time for " + processCount + " processes = " + averageWaitingTime + " sec(s)",
-                    "Average Waiting Time",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.None);
+                MessageBox.Show( "Average waiting time for " + processCount + " processes = " + averageWaitingTime + " sec(s)", "Average Waiting Time",
+                                   MessageBoxButtons.OK, MessageBoxIcon.None);
             }
         }
 
@@ -422,6 +412,173 @@ namespace CpuScheduler
 
         // TODO: Add new scheduling algorithms below. Use the above methods as
         // examples when expanding functionality.
+
+        /// <summary>
+        /// Executes the Shortest Remaining Time First (Preemptive SJF) scheduling algorithm.
+        /// </summary>
+        /// <param name="processCountInput">Number of processes to schedule.</param>
+        public static void RunSRTF(string processCountInput)
+        {
+            if (!int.TryParse(processCountInput, out int processCount) || processCount <= 0)
+            {
+                MessageBox.Show("Invalid number of processes", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            double[] arrivalTimes = new double[processCount];
+            double[] burstTimes = new double[processCount];
+            double[] remainingTimes = new double[processCount];
+            double[] waitingTimes = new double[processCount];
+            double[] turnaroundTimes = new double[processCount];
+            bool[] completed = new bool[processCount];
+
+            for (int i = 0; i < processCount; i++)
+            {
+                string arrivalInput = Microsoft.VisualBasic.Interaction.InputBox(
+                    $"Enter arrival time for P{i + 1}:", $"Arrival Time P{i + 1}", "", -1, -1);
+                if (!double.TryParse(arrivalInput, out arrivalTimes[i]) || arrivalTimes[i] < 0)
+                {
+                    MessageBox.Show("Invalid arrival time", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                string burstInput = Microsoft.VisualBasic.Interaction.InputBox(
+                    $"Enter burst time for P{i + 1}:", $"Burst Time P{i + 1}", "", -1, -1);
+                if (!double.TryParse(burstInput, out burstTimes[i]) || burstTimes[i] <= 0)
+                {
+                    MessageBox.Show("Invalid burst time", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                remainingTimes[i] = burstTimes[i];
+            }
+
+            int completedCount = 0;
+            double currentTime = 0;
+            while (completedCount < processCount)
+            {
+                int idx = -1;
+                double minRemaining = double.MaxValue;
+
+                for (int i = 0; i < processCount; i++)
+                {
+                    if (!completed[i] && arrivalTimes[i] <= currentTime && remainingTimes[i] < minRemaining)
+                    {
+                        minRemaining = remainingTimes[i];
+                        idx = i;
+                    }
+                }
+
+                if (idx == -1)
+                {
+                    currentTime += 1; // No process ready, increment time
+                    continue;
+                }
+
+                remainingTimes[idx] -= 1;
+                currentTime += 1;
+
+                if (remainingTimes[idx] == 0)
+                {
+                    completed[idx] = true;
+                    completedCount++;
+                    turnaroundTimes[idx] = currentTime - arrivalTimes[idx];
+                    waitingTimes[idx] = turnaroundTimes[idx] - burstTimes[idx];
+
+                    MessageBox.Show($"Process P{idx + 1} completed:\nWaiting Time = {waitingTimes[idx]}\nTurnaround Time = {turnaroundTimes[idx]}",
+                        "Process Completed", MessageBoxButtons.OK);
+                }
+            }
+
+            double avgWait = waitingTimes.Average();
+            double avgTurnaround = turnaroundTimes.Average();
+
+            MessageBox.Show($"Average Waiting Time = {avgWait}\nAverage Turnaround Time = {avgTurnaround}",
+                "SRTF Summary", MessageBoxButtons.OK);
+        }
+
+
+        /// <summary>
+        /// Executes the Highest Response Ratio Next scheduling algorithm (non-preemptive).        
+        /// <param name="processCountInput">Number of processes to schedule.</param>
+        /// </summary>
+        public static void RunHRRN(string processCountInput)
+        {
+            if (!int.TryParse(processCountInput, out int processCount) || processCount <= 0)
+            {
+                MessageBox.Show("Invalid number of processes", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            double[] arrivalTimes = new double[processCount];
+            double[] burstTimes = new double[processCount];
+            double[] waitingTimes = new double[processCount];
+            double[] turnaroundTimes = new double[processCount];
+            bool[] completed = new bool[processCount];
+
+            for (int i = 0; i < processCount; i++)
+            {
+                string arrivalInput = Microsoft.VisualBasic.Interaction.InputBox(
+                    $"Enter arrival time for P{i + 1}:", $"Arrival Time P{i + 1}", "", -1, -1);
+                if (!double.TryParse(arrivalInput, out arrivalTimes[i]) || arrivalTimes[i] < 0)
+                {
+                    MessageBox.Show("Invalid arrival time", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                string burstInput = Microsoft.VisualBasic.Interaction.InputBox(
+                    $"Enter burst time for P{i + 1}:", $"Burst Time P{i + 1}", "", -1, -1);
+                if (!double.TryParse(burstInput, out burstTimes[i]) || burstTimes[i] <= 0)
+                {
+                    MessageBox.Show("Invalid burst time", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+
+            int completedCount = 0;
+            double currentTime = 0;
+
+            while (completedCount < processCount)
+            {
+                int idx = -1;
+                double maxResponseRatio = double.MinValue;
+
+                for (int i = 0; i < processCount; i++)
+                {
+                    if (!completed[i] && arrivalTimes[i] <= currentTime)
+                    {
+                        double waiting = currentTime - arrivalTimes[i];
+                        double responseRatio = (waiting + burstTimes[i]) / burstTimes[i];
+                        if (responseRatio > maxResponseRatio)
+                        {
+                            maxResponseRatio = responseRatio;
+                            idx = i;
+                        }
+                    }
+                }
+
+                if (idx == -1)
+                {
+                    currentTime += 1; // No process ready
+                    continue;
+                }
+
+                waitingTimes[idx] = currentTime - arrivalTimes[idx];
+                currentTime += burstTimes[idx];
+                turnaroundTimes[idx] = currentTime - arrivalTimes[idx];
+                completed[idx] = true;
+                completedCount++;
+
+                MessageBox.Show($"Process P{idx + 1} completed:\nWaiting Time = {waitingTimes[idx]}\nTurnaround Time = {turnaroundTimes[idx]}",
+                    "Process Completed", MessageBoxButtons.OK);
+            }
+
+            double avgWait = waitingTimes.Average();
+            double avgTurnaround = turnaroundTimes.Average();
+
+            MessageBox.Show($"Average Waiting Time = {avgWait}\nAverage Turnaround Time = {avgTurnaround}",
+                "HRRN Summary", MessageBoxButtons.OK);
+        }
     }
 }
 
