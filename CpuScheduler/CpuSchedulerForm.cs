@@ -859,6 +859,110 @@ Instructions:
         }
 
         /// <summary>
+        /// CPU-Bound Workload: Processes with long burst times (simulating computation-intensive tasks)
+        /// </summary>
+        private void LoadCpuBoundWorkload()
+        {
+            processTable.Clear();
+
+            // Create 5 processes with long burst times (CPU-intensive)
+            var cpuBoundProcesses = new[]
+            {
+                new { ID = "P1", Arrival = 0, Burst = 25, Priority = 3 },
+                new { ID = "P2", Arrival = 2, Burst = 18, Priority = 1 },
+                new { ID = "P3", Arrival = 4, Burst = 30, Priority = 4 },
+                new { ID = "P4", Arrival = 6, Burst = 22, Priority = 2 },
+                new { ID = "P5", Arrival = 8, Burst = 28, Priority = 5 }
+            };
+
+            foreach (var process in cpuBoundProcesses)
+            {
+                DataRow row = processTable.NewRow();
+                row["Process ID"] = process.ID;
+                row["Burst Time"] = process.Burst;
+                row["Priority"] = process.Priority;
+                row["Arrival Time"] = process.Arrival;
+                processTable.Rows.Add(row);
+            }
+
+            txtProcess.Text = "5";
+            MessageBox.Show("CPU-Bound Workload Loaded:\n• 5 processes with long burst times (18-30 units)\n• Simulates computation-intensive tasks\n• Tests how algorithms handle long-running processes",
+                           "CPU-Bound Workload", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// I/O-Bound Workload: Processes with short burst times (simulating I/O-intensive tasks)
+        /// </summary>
+        private void LoadIoBoundWorkload()
+        {
+            processTable.Clear();
+
+            // Create 8 processes with short burst times (I/O-intensive)
+            var ioBoundProcesses = new[]
+            {
+                new { ID = "P1", Arrival = 0, Burst = 3, Priority = 2 },
+                new { ID = "P2", Arrival = 1, Burst = 2, Priority = 4 },
+                new { ID = "P3", Arrival = 2, Burst = 4, Priority = 1 },
+                new { ID = "P4", Arrival = 3, Burst = 1, Priority = 3 },
+                new { ID = "P5", Arrival = 4, Burst = 2, Priority = 5 },
+                new { ID = "P6", Arrival = 5, Burst = 3, Priority = 2 },
+                new { ID = "P7", Arrival = 6, Burst = 2, Priority = 4 },
+                new { ID = "P8", Arrival = 7, Burst = 1, Priority = 1 }
+            };
+
+            foreach (var process in ioBoundProcesses)
+            {
+                DataRow row = processTable.NewRow();
+                row["Process ID"] = process.ID;
+                row["Burst Time"] = process.Burst;
+                row["Priority"] = process.Priority;
+                row["Arrival Time"] = process.Arrival;
+                processTable.Rows.Add(row);
+            }
+
+            txtProcess.Text = "8";
+            MessageBox.Show("I/O-Bound Workload Loaded:\n• 8 processes with short burst times (1-4 units)\n• Simulates I/O-intensive tasks\n• Tests algorithm responsiveness to short processes",
+                           "I/O-Bound Workload", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Mixed Workload: Combination of CPU-bound and I/O-bound processes
+        /// </summary>
+        private void LoadMixedWorkload()
+        {
+            processTable.Clear();
+
+            // Create a mix of long (CPU-bound) and short (I/O-bound) processes
+            var mixedProcesses = new[]
+            {
+                // CPU-bound processes
+                new { ID = "P1", Arrival = 0, Burst = 20, Priority = 3 },
+                new { ID = "P2", Arrival = 3, Burst = 15, Priority = 4 },
+                new { ID = "P3", Arrival = 6, Burst = 25, Priority = 2 },
+        
+                // I/O-bound processes
+                new { ID = "P4", Arrival = 1, Burst = 4, Priority = 1 },
+                new { ID = "P5", Arrival = 2, Burst = 2, Priority = 5 },
+                new { ID = "P6", Arrival = 4, Burst = 3, Priority = 2 },
+                new { ID = "P7", Arrival = 5, Burst = 1, Priority = 3 }
+            };
+
+            foreach (var process in mixedProcesses)
+            {
+                DataRow row = processTable.NewRow();
+                row["Process ID"] = process.ID;
+                row["Burst Time"] = process.Burst;
+                row["Priority"] = process.Priority;
+                row["Arrival Time"] = process.Arrival;
+                processTable.Rows.Add(row);
+            }
+
+            txtProcess.Text = "7";
+            MessageBox.Show("Mixed Workload Loaded:\n• 3 CPU-bound processes (15-25 units)\n• 4 I/O-bound processes (1-4 units)\n• Simulates real-world mixed environment\n• Tests algorithm balance between long and short processes",
+                           "Mixed Workload", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
         /// Loads example process scenarios.
         /// </summary>
         private void LoadExample_SelectedIndexChanged(object sender, EventArgs e)
@@ -903,6 +1007,15 @@ Instructions:
                         row["Priority"] = priority--;
                         row["Arrival Time"] = 0;
                     }
+                    break;
+                case 5: 
+                    LoadCpuBoundWorkload(); 
+                    break;
+                case 6: 
+                    LoadIoBoundWorkload(); 
+                    break;
+                case 7: 
+                    LoadMixedWorkload(); 
                     break;
             }
 

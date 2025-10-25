@@ -363,12 +363,22 @@
             cmbLoadExample.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             cmbLoadExample.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             cmbLoadExample.FormattingEnabled = true;
-            cmbLoadExample.Items.AddRange(new object[] { "Load Example...", "Short Processes (1-5)", "Mixed Load (1-20)", "Heavy Load (10-30)", "Priority Demo" });
+            cmbLoadExample.Items.AddRange(new object[] {
+                                            "Load Example...",
+                                            "Short Processes (1-5)",
+                                            "Mixed Load (1-20)",
+                                            "Heavy Load (10-30)",
+                                            "Priority Demo",
+                                            "CPU-Bound Workload",
+                                            "I/O-Bound Workload",
+                                            "Mixed Workload"
+                                        });
             cmbLoadExample.Location = new System.Drawing.Point(490, 175);
             cmbLoadExample.Name = "cmbLoadExample";
             cmbLoadExample.Size = new System.Drawing.Size(120, 23);
             cmbLoadExample.TabIndex = 24;
             cmbLoadExample.SelectedIndexChanged += LoadExample_SelectedIndexChanged;
+
             // 
             // algorithmButtonPanel
             // 
